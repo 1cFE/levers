@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fusion Archetype LCOE Lever Stacks</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#ECEEF0;
+    --panel:#FFFFFF;
+    --ink:#16212B;
+    --steel:#46586A;
+    --line:#C8CFD6;
+    --plasma:#BE2E62;
+    --glow:#F7E3EC;
+    --mono:'IBM Plex Mono',ui-monospace,monospace;
+    --sans:'IBM Plex Sans',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto}
+    *,*::before,*::after{transition:none!important;animation:none!important}
+  }
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--sans);
+    font-size:15px;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+
+  /* ---------- header ---------- */
+  header{border-bottom:1px solid var(--line);background:var(--paper)}
+  .masthead{padding:44px 0 8px;display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+  .doc-id{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--steel)}
+  .doc-id b{color:var(--plasma);font-weight:600}
+  h1{font-size:clamp(26px,4vw,40px);font-weight:700;letter-spacing:-.02em;line-height:1.1;padding:6px 0 18px}
+  h1 .accent{color:var(--plasma)}
+  .intro{max-width:78ch;color:var(--ink);padding-bottom:16px}
+  .intro p{margin-bottom:12px}
+  .howto{
+    border-left:3px solid var(--plasma);
+    background:var(--panel);
+    padding:14px 18px;
+    max-width:80ch;
+    margin-bottom:28px;
+    font-size:14px;
+  }
+  .howto .k{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--plasma);display:block;margin-bottom:6px;font-weight:600}
+
+  /* ---------- layout ---------- */
+  .layout{display:grid;grid-template-columns:252px 1fr;gap:32px;padding:32px 0 56px}
+  @media(max-width:860px){.layout{grid-template-columns:1fr;gap:20px}}
+
+  /* ---------- selector rail ---------- */
+  nav[role=tablist]{display:flex;flex-direction:column;gap:8px;align-self:start;position:sticky;top:16px}
+  @media(max-width:860px){
+    nav[role=tablist]{flex-direction:row;overflow-x:auto;position:static;padding-bottom:6px}
+  }
+  .tile{
+    display:flex;align-items:center;gap:12px;
+    background:var(--panel);
+    border:1px solid var(--line);
+    padding:10px 12px;
+    cursor:pointer;text-align:left;
+    font-family:var(--sans);
+    color:var(--ink);
+    width:100%;
+    transition:border-color .15s,background .15s;
+  }
+  @media(max-width:860px){.tile{min-width:190px}}
+  .tile:hover{border-color:var(--steel)}
+  .tile:focus-visible{outline:2px solid var(--plasma);outline-offset:2px}
+  .tile[aria-selected=true]{border-color:var(--plasma);background:var(--glow)}
+  .tile svg{flex:0 0 36px;height:36px;width:36px}
+  .tile .g-stroke{stroke:var(--steel);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+  .tile[aria-selected=true] .g-stroke{stroke:var(--plasma)}
+  .tile .g-dot{fill:var(--steel)}
+  .tile[aria-selected=true] .g-dot{fill:var(--plasma)}
+  .t-key{font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.1em;color:var(--steel)}
+  .tile[aria-selected=true] .t-key{color:var(--plasma)}
+  .t-name{font-size:13.5px;font-weight:600;line-height:1.25}
+  .t-fuel{font-family:var(--mono);font-size:10.5px;color:var(--steel)}
+
+  /* ---------- panels ---------- */
+  .panel{display:none;background:var(--panel);border:1px solid var(--line);padding:30px 34px 26px}
+  .panel.active{display:block;animation:fadein .18s ease-out}
+  @keyframes fadein{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  @media(max-width:640px){.panel{padding:20px 18px}}
+  .p-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;border-bottom:1px solid var(--ink);padding-bottom:14px;margin-bottom:8px}
+  .p-key{font-family:var(--mono);font-size:13px;font-weight:600;letter-spacing:.12em;color:var(--plasma)}
+  .p-title{font-size:22px;font-weight:700;letter-spacing:-.01em}
+  .p-fuel{font-family:var(--mono);font-size:11.5px;color:var(--steel);letter-spacing:.06em}
+
+  .subgroup{margin-top:22px}
+  .sg-label{
+    font-family:var(--mono);font-size:11px;font-weight:600;
+    letter-spacing:.14em;text-transform:uppercase;color:var(--steel);
+    display:flex;align-items:center;gap:10px;margin-bottom:10px;
+  }
+  .sg-label::after{content:"";flex:1;height:1px;background:var(--line)}
+  .sg-label .qual{color:var(--plasma);text-transform:none;letter-spacing:.02em;font-weight:500}
+  ul{list-style:none}
+  li{
+    padding:5px 0 5px 18px;position:relative;
+    max-width:88ch;
+  }
+  li::before{
+    content:"";position:absolute;left:2px;top:.85em;
+    width:7px;height:1.6px;background:var(--plasma);
+  }
+  strong{font-weight:600}
+  em{font-style:italic}
+  code{font-family:var(--mono);font-size:.88em;background:var(--paper);padding:1px 5px;border-radius:2px}
+  .gates{
+    margin-top:24px;border:1px dashed var(--line);
+    padding:12px 16px;font-size:13.5px;color:var(--steel);
+    max-width:92ch;
+  }
+  .gates .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--plasma);font-weight:600;margin-right:8px}
+
+  /* ---------- footer strip ---------- */
+  footer{border-top:1px solid var(--line);padding:30px 0 60px}
+  .obs{max-width:88ch;margin-bottom:20px}
+  .obs .k{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--plasma);font-weight:600;display:block;margin-bottom:8px}
+  table{border-collapse:collapse;font-size:13.5px;width:100%;max-width:760px;background:var(--panel)}
+  th,td{border:1px solid var(--line);padding:8px 12px;text-align:left;vertical-align:top}
+  th{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--steel);font-weight:600}
+  td:first-child{font-family:var(--mono);font-weight:600;color:var(--plasma);white-space:nowrap}
+  .colophon{margin-top:26px;font-family:var(--mono);font-size:11px;color:var(--steel);letter-spacing:.04em}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="masthead">
+      <span class="doc-id"><b>1cFE</b> · Techno-economic reference · Jul 2026</span>
+    </div>
+    <h1>LCOE lever stacks for six fusion archetypes<span class="accent">.</span></h1>
+    <div class="intro">
+      <p>Every fusion architecture has a different route to ultra-low-cost electricity — and a different set of things that must <em>all</em> go right to get there. This reference maps the techno-economic levers behind the most favorable LCOE case of six representative fusion archetypes, spanning confinement families (magnetic, inertial, magneto-inertial) and fuel cycles (D-T, D-³He, p-¹¹B), against an ambitious ~1&nbsp;¢/kWh cost target.</p>
+      <p>The levers were surveyed account-by-account across the standard fusion cost-accounting structure (CAS10–90 and the CAS22 reactor-equipment sub-accounts) and cross-checked against the <code>1costingfe</code> costing framework. Each lever is placed under its dominant cascading effect — reduced CAPEX, increased availability, increased net electric output, reduced OPEX, reduced fuel-cycle cost, or revenue offsets — because that cascade, not the account it lives in, is what determines how it moves LCOE.</p>
+    </div>
+    <div class="howto">
+      <span class="k">How to read</span>
+      An archetype's best case = the <strong>Universal stack</strong> (levers common to all six: financing, regulatory, siting, fleet, and operations) <strong>+ its archetype-specific levers.</strong>
+      <br><br>
+      Note: In practice, not all of these levers are likely to be realized simultaneously. This exercise simply identifies the maximum set of favorable assumptions that could improve a given reactor's LCOE.
+    </div>
+  </div>
+</header>
+
+<div class="wrap layout">
+
+  <!-- ====== selector rail ====== -->
+  <nav role="tablist" aria-label="Archetype selector">
+    <button class="tile" role="tab" id="tab-u" aria-controls="panel-u" aria-selected="true">
+      <svg viewBox="0 0 40 40" aria-hidden="true"><g class="g-stroke"><rect x="8" y="24" width="24" height="5"/><rect x="11" y="16" width="18" height="5"/><rect x="14" y="8" width="12" height="5"/></g></svg>
+      <span><span class="t-key">§U</span><br><span class="t-name">Universal stack</span><br><span class="t-fuel">all archetypes</span></span>
+    </button>
+    <button class="tile" role="tab" id="tab-a" aria-controls="panel-a" aria-selected="false">
+      <svg viewBox="0 0 40 40" aria-hidden="true"><g class="g-stroke"><ellipse cx="20" cy="20" rx="13" ry="9"/><ellipse cx="20" cy="20" rx="5.5" ry="3.5"/></g></svg>
+      <span><span class="t-key">A</span><br><span class="t-name">Compact MFE, steady-state</span><br><span class="t-fuel">D-T</span></span>
+    </button>
+    <button class="tile" role="tab" id="tab-b" aria-controls="panel-b" aria-selected="false">
+      <svg viewBox="0 0 40 40" aria-hidden="true"><g class="g-stroke"><path d="M20 6v8M20 26v8M6 20h8M26 20h8M9.5 9.5l6 6M24.5 24.5l6 6M30.5 9.5l-6 6M15.5 24.5l-6 6"/></g><circle class="g-dot" cx="20" cy="20" r="2.6"/></svg>
+      <span><span class="t-key">B</span><br><span class="t-name">Laser IFE</span><br><span class="t-fuel">D-T</span></span>
+    </button>
+    <button class="tile" role="tab" id="tab-c" aria-controls="panel-c" aria-selected="false">
+      <svg viewBox="0 0 40 40" aria-hidden="true"><g class="g-stroke"><rect x="6" y="13" width="28" height="14" rx="7"/><ellipse cx="20" cy="20" rx="8" ry="3.6"/></g></svg>
+      <span><span class="t-key">C</span><br><span class="t-name">Pulsed inductive FRC</span><br><span class="t-fuel">D-³He</span></span>
+    </button>
+    <button class="tile" role="tab" id="tab-d" aria-controls="panel-d" aria-selected="false">
+      <svg viewBox="0 0 40 40" aria-hidden="true"><g class="g-stroke"><path d="M8 14c6 4 18 4 24 0M8 26c6-4 18-4 24 0"/><ellipse cx="9" cy="20" rx="2.4" ry="6.5"/><ellipse cx="31" cy="20" rx="2.4" ry="6.5"/><path d="M14 20h12"/></g></svg>
+      <span><span class="t-key">D</span><br><span class="t-name">Steady-state mirror / linear</span><br><span class="t-fuel">p-¹¹B</span></span>
+    </button>
+    <button class="tile" role="tab" id="tab-e" aria-controls="panel-e" aria-selected="false">
+      <svg viewBox="0 0 40 40" aria-hidden="true"><g class="g-stroke"><rect x="14" y="8" width="12" height="24" rx="2"/><path d="M20 27V13M20 13l-3 3.4M20 13l3 3.4"/></g></svg>
+      <span><span class="t-key">E</span><br><span class="t-name">MagLIF</span><br><span class="t-fuel">D-T</span></span>
+    </button>
+    <button class="tile" role="tab" id="tab-f" aria-controls="panel-f" aria-selected="false">
+      <svg viewBox="0 0 40 40" aria-hidden="true"><g class="g-stroke"><path d="M8 8h24M8 32h24M20 8c-3 4 3 8 0 12s3 8 0 12"/></g></svg>
+      <span><span class="t-key">F</span><br><span class="t-name">Z-pinch, shear-flow</span><br><span class="t-fuel">D-T</span></span>
+    </button>
+  </nav>
+
+  <!-- ====== panels ====== -->
+  <main>
+
+  <!-- §U -->
+  <section class="panel active" id="panel-u" role="tabpanel" aria-labelledby="tab-u">
+    <div class="p-head"><span class="p-key">§U</span><span class="p-title">Universal stack</span><span class="p-fuel">applies to all six archetypes</span></div>
+
+    <div class="subgroup"><div class="sg-label">Reduced financing &amp; schedule cost</div><ul>
+      <li>FOAK→NOAK maturity: contingency → 0, all FOAK-anchored coefficients to NOAK values</li>
+      <li>Construction-duration compression (modular schedule de-risking; parallel module fab, serial site assembly)</li>
+      <li>Concessional financing / LPO loan guarantees; long-term PPAs lowering equity share of WACC</li>
+      <li>Favorable regulatory environment + Standard Design Certification / pre-licensing (indirect fraction 0.20→0.10; shorter licensing critical path; insurance 3× lower; owner &amp; O&amp;M relief)</li>
+      <li>Digital twin virtual commissioning (construction/pre-op runway −0.25–1.5 yr)</li>
+      <li>Factory acceptance testing shrinking on-site commissioning</li>
+      <li>Site banking of pre-approved sites</li>
+    </ul></div>
+
+    <div class="subgroup"><div class="sg-label">Reduced CAPEX — siting &amp; fleet</div><ul>
+      <li>Brownfield siting at retired coal/nuclear (land, permits, buildings, interconnect, cooling-water reuse) — <em>turbine reuse only for Rankine concepts</em></li>
+      <li>Fleet-standardized n-of-a-kind buildings; shared RH tooling suite; fleet lifetime-spares pooling; owner-staff amortization across co-located units</li>
+      <li>Modular factory-build with on-site assembly only; AI-aided project controls / 4D scheduling</li>
+      <li>Subterranean/berm reactor building; low-seismic site selection</li>
+      <li>AI-native software-defined I&amp;C</li>
+    </ul></div>
+
+    <div class="subgroup"><div class="sg-label">Increased availability / CF</div><ul>
+      <li>Real-time digital twin predictive operation (availability +0.02–0.05)</li>
+      <li>Condition-based / performance-based maintenance and higher fluence-limit materials</li>
+      <li>Capacity factor pushed to 85–90 % (the target all availability hardware serves)</li>
+    </ul></div>
+
+    <div class="subgroup"><div class="sg-label">Reduced OPEX</div><ul>
+      <li>Robotic maintenance + AI predictive ops staffing reduction (fuel-specific floors in archetype blocks)</li>
+      <li>Plant lifetime extension 60–80 yr (modest at commercial discount rates)</li>
+    </ul></div>
+
+    <div class="subgroup"><div class="sg-label">Revenue offsets</div><ul>
+      <li>Process-heat co-product sales (district heat / HTSE H₂ / desal) — siting-contingent</li>
+      <li>Decommissioning bond reform; state-backed insurance</li>
+    </ul></div>
+  </section>
+
+  <!-- A -->
+  <section class="panel" id="panel-a" role="tabpanel" aria-labelledby="tab-a">
+    <div class="p-head"><span class="p-key">A</span><span class="p-title">Compact MFE, steady-state</span><span class="p-fuel">D-T</span></div>
+
+    <div class="subgroup"><div class="sg-label">Reduced CAPEX <span class="qual">(machine-scale cascade)</span></div><ul>
+      <li>HTS ≥20 T high-field magnets (P_fus ∝ B⁴) → compact envelope → cube-law reduction in containment/shield/crane-bay volumes, 2–3× smaller structure per MWe</li>
+      <li>High REBCO learning rate, &lt; $50/kAm</li>
+      <li>LN2 / HTS-warm cryoplant ($200M-class → ~$30M), enabled by warm-magnet architecture</li>
+      <li>NOAK heating systems, aspirational cost + wall-plug efficiency per type: <strong>NBI</strong> $7.06 → $2.5M/MW, η_source 0.60 → 0.75 (photodetachment neutralizer replacing gas cell); <strong>ECRH</strong> gyrotrons $5.0 → $3.0M/MW, η 0.50 → 0.55 (multi-stage depressed collectors recovering spent electron-beam energy); <strong>ICRH</strong> $4.15 → $1.5M/MW, η_source 0.70 (solid-state amplifiers replacing tetrodes, ~50 % source-cost cut)</li>
+      <li>Alpha-heating dominance (Q &gt; 20) minimizing installed auxiliary heating</li>
+      <li>Self-cooled high-T breeder (FLiBe/PbLi) collapsing coolant + breeder loops (−60 % primary-coolant term)</li>
+      <li>B₄C-W composite shield (30 % thinner at same dose)</li>
+      <li>NOAK vessel unit cost via standardized sector fabrication ($0.72 → $0.35–0.50/m³)</li>
+    </ul></div>
+
+    <div class="subgroup"><div class="sg-label">Increased net electric <span class="qual">(denominator)</span></div><ul>
+      <li>Topping cycle η_th → 0.60 with &gt;700 °C salt coolant (or sCO₂ Brayton fallback at η 0.47)</li>
+      <li>η_couple 0.833 → 0.92–0.95 (three-strap ICRF, steered 1 MeV NBI, resonant ECRH)</li>
+    </ul></div>
+
+    <div class="subgroup"><div class="sg-label">Increased availability</div><ul>
+      <li>Liquid-metal divertor surfaces (Li/Sn-Li): erosion cap removed, core_lifetime ~5×</li>
+      <li>Liquid/flowing blanket: no discrete solid-FW replacement, core_lifetime ~3×</li>
+      <li>High fluence-limit FW material (&gt;20 MW-yr/m²) where solid surfaces remain</li>
+      <li>Sector-replacement vessel + robotic in-port welding (availability +0.05)</li>
+      <li>Advanced divertor geometry (Super-X/snowflake) buying CF for modest capex</li>
+    </ul></div>
+
+    <div class="subgroup"><div class="sg-label">Reduced fuel-cycle cost &amp; risk</div><ul>
+      <li>TBR ≥ 1 via Be/Be₁₂Ti multipliers + ⁶Li enrichment → zero external tritium exposure</li>
+      <li>Cheap ⁶Li enrichment (Hexium laser / ζ-V₂O₅)</li>
+      <li>DIR + membrane separation (fuel_recovery → 0.999, smaller tritium plant)</li>
+      <li>Burn efficiency &gt;50 % via spin polarization / selective pumping (inventory &amp; plant sizing)</li>
+      <li>NOAK tritium startup price ($30k → $10k/g)</li>
+    </ul></div>
+
+    <div class="subgroup"><div class="sg-label">Reduced OPEX</div><ul>
+      <li>DT staffing to &lt;90 FTE (om_cost $52 → ~$45M/yr)</li>
+    </ul></div>
+
+    <div class="subgroup"><div class="sg-label">Revenue offsets</div><ul>
+      <li>Medical radioisotopes (Mo-99, Lu-177) in blanket flux — traded against TBR margin</li>
+      <li>Hg → Au transmutation via (n,2n) in blanket flux — traded against TBR margin (realistic ~$2–5M/yr; matrix flags as economically marginal)</li>
+    </ul></div>
+  </section>
+
+  <!-- B -->
+  <section class="panel" id="panel-b" role="tabpanel" aria-labelledby="tab-b">
+    <div class="p-head"><span class="p-key">B</span><span class="p-title">Laser IFE</span><span class="p-fuel">D-T</span></div>
+
+    <div class="subgroup"><div class="sg-label">Reduced driver CAPEX &amp; recirculating power</div><ul>
+      <li>Driver wall-plug efficiency improvements</li>
+      <li>Fast / shock ignition: e_driver → ~30 % / ~60 % of central-hotspot (fast ignition adds PW-ignitor line ~$500M/MJ)</li>
+      <li>Fuel magnetization (seed field) in a magnetized-ICF variant → suppressed thermal conduction lowers required compression energy (matrix magnitude of 5–10× is MIF-anchored; treat as upper bound here)</li>
+      <li>Improved driver–target coupling efficiency → more of each delivered joule absorbed into the implosion, shrinking required e_driver (and thus stored energy and recirc power) at fixed yield</li>
+    </ul></div>
+
+    <div class="subgroup"><div class="sg-label">Reduced recurring target cost <span class="qual">(the archetype's dominant lever set)</span></div><ul>
+      <li>Direct drive: hohlraum eliminated from target_unit_cost <em>and</em> lower wall-plug demand per unit yield</li>
+      <li>Target tolerance relaxation: wetted-foam (0.3×) → mass-produced injection-molded capsules (0.02×)</li>
+      <li>Automated target inspection replacing bespoke cryogenic precision QA</li>
+    </ul></div>
+
+    <div class="subgroup"><div class="sg-label">Increased net electric</div><ul>
+      <li>sCO₂ Brayton or topping cycle on chamber heat (η_th up, CAS23/26 down)</li>
+    </ul></div>
+
+    <div class="subgroup"><div class="sg-label">Increased availability</div><ul>
+      <li>Liquid-wall chamber (liquid blanket): FW self-refreshes, no discrete replacement cycle</li>
+      <li>Standardized replaceable-component interfaces for laser-line and final-optics swap (CAS72 stream)</li>
+    </ul></div>
+
+    <div class="subgroup"><div class="sg-label">Reduced fuel-cycle cost</div><ul>
+      <li>TBR ≥ 1 + ⁶Li enrichment (chamber blanket); DIR fuel recovery; burn-efficiency gains via target physics; NOAK tritium startup price</li>
+    </ul></div>
+
+    <div class="subgroup"><div class="sg-label">Grid interface</div><ul>
+      <li>Buffer batteries/flywheels smoothing pulsed output + switchgear derating (0.7×); SST/HVDC option</li>
+    </ul></div>
+
+    <div class="subgroup"><div class="sg-label">Revenue offsets</div><ul>
+      <li>Medical radioisotopes (Mo-99, Lu-177) in chamber-blanket flux — traded against TBR margin</li>
+      <li>Hg → Au transmutation via (n,2n) — traded against TBR margin (marginal per matrix)</li>
+    </ul></div>
+
+    <div class="gates"><span class="k">Gate notes</span>No magnets → HTS, cryoplant, LN2 levers N/A. Brownfield turbine reuse only if Rankine chamber cycle chosen.</div>
+  </section>
+
+  <!-- C -->
+  <section class="panel" id="panel-c" role="tabpanel" aria-labelledby="tab-c">
+    <div class="p-head"><span class="p-key">C</span><span class="p-title">Pulsed inductive FRC</span><span class="p-fuel">D-³He · Helion-class</span></div>
+
+    <div class="subgroup"><div class="sg-label">Reduced fuel-cycle cost <span class="qual">(the archetype's make-or-break lever)</span></div><ul>
+      <li>High efficiency He-3 breeding + consumption</li>
+    </ul></div>
+
+    <div class="subgroup"><div class="sg-label">Increased net electric <span class="qual">(DEC channel)</span></div><ul>
+      <li>Inductive DEC (driver-in-reverse) &gt;85%</li>
+      <li>Hybrid DEC + topping cycle on the thermalized fraction (+10–15 % overall η)</li>
+    </ul></div>
+
+    <div class="subgroup"><div class="sg-label">Reduced driver / pulsed-power CAPEX</div><ul>
+      <li>Solid-state switch technology (IGBT/SiC → advanced solid-state, 0.4× switch cost)</li>
+      <li>Large-scale inductive energy storage as a potentially cheaper replacement to capacitor banks</li>
+      <li>Cap-bank component-level NOAK costs (bank + switches + charging split)</li>
+      <li><em>(Note: η_pin already 0.93–0.95 for pulsed-magnetic compression — at ceiling, no lever room per the matrix)</em></li>
+    </ul></div>
+
+    <div class="subgroup"><div class="sg-label">Reduced BOP &amp; installation CAPEX <span class="qual">(small-module advantage)</span></div><ul>
+      <li>Skid-mounted modular BOP (per-module p_net ≤ 50 MW)</li>
+      <li>Buffer batteries/flywheels + switchgear derating for pulsed output; SST/HVDC grid integration</li>
+    </ul></div>
+
+    <div class="subgroup"><div class="sg-label">Reduced nuclear-overhead CAPEX <span class="qual">(low-neutronicity dividend)</span></div><ul>
+      <li>Risk-informed structural margins (reduced activation, no large tritium inventory)</li>
+      <li>Thin shield / minimal RH / low fuel-handling &amp; licensing baselines fully credited</li>
+    </ul></div>
+
+    <div class="subgroup"><div class="sg-label">Increased availability</div><ul>
+      <li>Standardized replaceable-component interfaces for formation electrodes &amp; cap-bank modules (the CAS72 replacement stream)</li>
+    </ul></div>
+
+    <div class="gates"><span class="k">Gate notes</span>No SC-magnet cryoplant levers (non-SC excluded automatically); no target factory (in-situ FRC formation); no blanket/TBR levers.</div>
+  </section>
+
+  <!-- D -->
+  <section class="panel" id="panel-d" role="tabpanel" aria-labelledby="tab-d">
+    <div class="p-head"><span class="p-key">D</span><span class="p-title">Steady-state mirror / linear</span><span class="p-fuel">p-¹¹B · aneutronic</span></div>
+
+    <div class="subgroup"><div class="sg-label">Increased net electric <span class="qual">(DEC-dominant conversion)</span></div><ul>
+      <li>X-ray PV brem harvesting, implemented as a topping cycle alongside thermal power conversion</li>
+      <li>Electrostatic DEC at aspirational $0.31M/MW base, if applicable</li>
+    </ul></div>
+
+    <div class="subgroup"><div class="sg-label">Reduced CAPEX</div><ul>
+      <li>HTS high-field mirror coils (low 1.73 coil markup; compact linear machine)</li>
+      <li>LN2 / HTS-warm cryoplant ($200M-class → ~$30M)</li>
+      <li>ICRH at NOAK $4.15 → $1.5M/MW, η_source 0.70 (solid-state amplifiers replacing tetrodes, ~50 % source-cost cut; ferrite-tunable antenna on the coupling side)</li>
+      <li>Alpha channeling via ICRH-band waves → alpha-heating dominance, minimizing installed auxiliary heating power (enters the model as low p_input)</li>
+      <li>η_couple 0.833 → 0.88–0.92 toward the mirror ceiling</li>
+      <li>Skid-mounted BOP if module size ≤ 50 MW</li>
+    </ul></div>
+
+    <div class="subgroup"><div class="sg-label">Reduced nuclear-overhead CAPEX <span class="qual">(aneutronic dividend)</span></div><ul>
+      <li>Risk-informed structural margins (explicitly justified for aneutronic: no T inventory, no high-fluence activation)</li>
+      <li>Minimal shield (0.1× scale) + B₄C-W composite thinning; near-zero RH, decom, licensing baselines fully credited</li>
+      <li>No blanket, no tritium plant, no cryo-distillation — structural absences locked in</li>
+    </ul></div>
+
+    <div class="subgroup"><div class="sg-label">Reduced fuel &amp; OPEX</div><ul>
+      <li>B-11 at industrial NOAK $75/kg (chemical distillation at scale)</li>
+      <li>Burn efficiency gains against the bremsstrahlung power-balance constraint</li>
+      <li>pB11 staffing to &lt;45 FTE (om_cost $24 → ~$17M/yr); mirror om_scale 0.85 (linear-machine ergonomics)</li>
+    </ul></div>
+
+    <div class="subgroup"><div class="sg-label">Revenue offsets</div><ul>
+      <li>Ac-225 targeted-alpha-therapy production via the DEC alpha channel (8.7 MeV alphas uniquely suited; $100M–$1B+ market)</li>
+    </ul></div>
+
+    <div class="subgroup"><div class="sg-label">Siting flexibility</div><ul>
+      <li>Dry cooling with minimal penalty (DEC-dominant → small thermal share exposed to the η_th hit) → inland/arid siting freedom</li>
+    </ul></div>
+
+    <div class="gates"><span class="k">Gate notes</span>No divertor-erosion or blanket-lifetime levers (no breeding blanket); medical-isotope neutron co-products N/A.</div>
+  </section>
+
+  <!-- E -->
+  <section class="panel" id="panel-e" role="tabpanel" aria-labelledby="tab-e">
+    <div class="p-head"><span class="p-key">E</span><span class="p-title">MagLIF</span><span class="p-fuel">D-T</span></div>
+
+    <div class="subgroup"><div class="sg-label">Reduced driver CAPEX &amp; recirculating power</div><ul>
+      <li>Fuel magnetization (seed field) — the defining lever: suppressed thermal conduction cuts required driver energy 5–10×, propagating through the entire e_driver-scaled driver cost</li>
+      <li>η_pin 0.15 → 0.30–0.40 via solid-state pulsed power (SiC/GaN, Marx→LTD topology, low-inductance buswork)</li>
+      <li>Inductive energy storage (0.25× cap-bank $/J at multi-MJ scale)</li>
+      <li>Switch technology + cap-bank component splits at NOAK</li>
+      <li>DPSSL preheat-laser efficiency gains (0.10 → 0.15–0.20) on the laser_preheat term</li>
+    </ul></div>
+
+    <div class="subgroup"><div class="sg-label">Reduced recurring target cost</div><ul>
+      <li>Relaxed-tolerance / mass-manufactured liner-target production</li>
+      <li>Automated target/liner inspection</li>
+    </ul></div>
+
+    <div class="subgroup"><div class="sg-label">Increased availability</div><ul>
+      <li>Standardized replaceable-component interfaces for cap banks, etc.</li>
+      <li>Liquid-metal chamber walls where architecture permits (self-refreshing FW, RTL-remelt accounting)</li>
+    </ul></div>
+
+    <div class="subgroup"><div class="sg-label">Reduced fuel-cycle cost</div><ul>
+      <li>TBR ≥ 1 + ⁶Li enrichment; DIR fuel recovery → 0.999; burn efficiency / spin polarization; NOAK tritium startup price</li>
+    </ul></div>
+
+    <div class="subgroup"><div class="sg-label">Grid interface &amp; BOP</div><ul>
+      <li>Buffer batteries/flywheels + switchgear derating for pulsed output</li>
+      <li>Skid-mounted BOP if module size ≤ 50 MW</li>
+    </ul></div>
+
+    <div class="subgroup"><div class="sg-label">Revenue offsets</div><ul>
+      <li>Medical radioisotopes (Mo-99, Lu-177) in blanket flux — traded against TBR margin</li>
+      <li>Hg → Au transmutation via (n,2n) — traded against TBR margin (marginal per matrix)</li>
+    </ul></div>
+
+    <div class="gates"><span class="k">Gate notes</span>Seed coils are minor — no SC cryoplant levers; sCO₂/topping applies to chamber thermal cycle.</div>
+  </section>
+
+  <!-- F -->
+  <section class="panel" id="panel-f" role="tabpanel" aria-labelledby="tab-f">
+    <div class="p-head"><span class="p-key">F</span><span class="p-title">Z-pinch</span><span class="p-fuel">D-T · shear-flow / Zap-class</span></div>
+
+    <div class="subgroup"><div class="sg-label">Reduced driver CAPEX &amp; recirculating power <span class="qual">(the archetype's headline stack)</span></div><ul>
+      <li>η_pin 0.15–0.20 → 0.30–0.40 (SiC/GaN solid-state switches replacing spark gaps/thyratrons; Marx→LTD; low-inductance buswork) <strong>+ inductive energy storage</strong></li>
+      <li>Cap-bank component-level NOAK costs (bank/switch/charging split)</li>
+    </ul></div>
+
+    <div class="subgroup"><div class="sg-label">Reduced CAPEX <span class="qual">(inherent simplicity fully credited)</span></div><ul>
+      <li>No magnets, no cryoplant, no laser — structural absences locked in</li>
+      <li>Compact simple cylindrical geometry: cube-law-small buildings, NOAK vessel unit cost via standardized fabrication, minimal primary structure</li>
+    </ul></div>
+
+    <div class="subgroup"><div class="sg-label">Increased availability</div><ul>
+      <li>Improved instability mitigation via shear flow controls</li>
+      <li>Flowing liquid-metal wall/blanket: FW and electrode-adjacent surfaces self-refresh, eliminating the erosion-driven replacement cap (core_lifetime multiple)</li>
+      <li>Standardized replaceable-component interfaces for electrodes &amp; pulsed-power modules (CAS72 stream)</li>
+    </ul></div>
+
+    <div class="subgroup"><div class="sg-label">Reduced fuel-cycle cost</div><ul>
+      <li>TBR ≥ 1 + ⁶Li enrichment (liquid blanket doubles as breeder); DIR fuel recovery; burn efficiency / spin polarization; NOAK tritium startup price</li>
+    </ul></div>
+
+    <div class="subgroup"><div class="sg-label">Grid interface &amp; BOP</div><ul>
+      <li>Buffer batteries/flywheels + switchgear derating for pulsed output; SST/HVDC option</li>
+      <li>Skid-mounted BOP for ≤50 MW modules (+ installation &amp; aux knockdowns)</li>
+    </ul></div>
+
+    <div class="subgroup"><div class="sg-label">Increased net electric</div><ul>
+      <li>sCO₂ Brayton or topping cycle on blanket heat (liquid-salt blanket enables &gt;700 °C path)</li>
+    </ul></div>
+
+    <div class="subgroup"><div class="sg-label">Revenue offsets</div><ul>
+      <li>Medical radioisotopes (Mo-99, Lu-177) in flowing-blanket flux — traded against TBR margin</li>
+      <li>Hg → Au transmutation via (n,2n) — traded against TBR margin (marginal per matrix)</li>
+    </ul></div>
+
+    <div class="gates"><span class="k">Gate notes</span>Sheared-flow in-situ formation → target-factory and target-cost levers N/A (<code>manufactured_target=False</code> zeroes C220108); if a target-based Z-pinch variant, import the MagLIF target block instead. Self-cooled-breeder lever folds into the flowing liquid wall entry above.</div>
+  </section>
+
+  </main>
+</div>
+
+<footer>
+  <div class="wrap">
+    <div class="colophon">Derived from the CAS-account lever survey, source-verified against 1costingfe main @ 2026-07-01 (v0.1.1).</div>
+  </div>
+</footer>
+
+<script>
+  const tabs = document.querySelectorAll('[role=tab]');
+  const panels = document.querySelectorAll('[role=tabpanel]');
+  function activate(tab){
+    tabs.forEach(t=>t.setAttribute('aria-selected', t===tab ? 'true':'false'));
+    panels.forEach(p=>p.classList.toggle('active', p.id === tab.getAttribute('aria-controls')));
+  }
+  tabs.forEach(tab=>{
+    tab.addEventListener('click', ()=>activate(tab));
+    tab.addEventListener('keydown', e=>{
+      const arr=[...tabs]; const i=arr.indexOf(tab);
+      if(e.key==='ArrowDown'||e.key==='ArrowRight'){e.preventDefault();const n=arr[(i+1)%arr.length];n.focus();activate(n);}
+      if(e.key==='ArrowUp'||e.key==='ArrowLeft'){e.preventDefault();const n=arr[(i-1+arr.length)%arr.length];n.focus();activate(n);}
+    });
+  });
+</script>
+</body>
+</html>
