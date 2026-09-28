@@ -13,7 +13,7 @@ import zipfile
 NAME = "1cfe-levers"
 REPOSITORY = "https://github.com/1cFE/levers"
 SOURCE_PATH = ""
-INCLUDE = ("index.html", "run-locally.html", "README.md", "package_release.py")
+INCLUDE = ("index.html", "run-locally.html", "README.md", "LICENSING.md", "LICENSES", "package_release.py")
 
 
 def git(root, *args):
@@ -42,7 +42,8 @@ def main():
         "source_commit": commit,
         "source_path": SOURCE_PATH.rstrip("/"),
         "source_url": f"{REPOSITORY}/tree/{commit}/{SOURCE_PATH}".rstrip("/"),
-        "project_license": "No project license is declared here; this bundle does not add a new project license.",
+        "licenses": dict(code="MIT", text="CC-BY-4.0"),
+        "license_scope": "LICENSING.md",
     }
     payload["release.json"] = (json.dumps(manifest, indent=2, sort_keys=True) + "\n").encode()
     payload["SHA256SUMS"] = "".join(

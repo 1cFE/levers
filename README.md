@@ -33,4 +33,4 @@ Before attaching a bundle to a tagged release, check all seven tabs, keyboard na
 
 ## Rights
 
-A project license has not yet been added to this source tree. This preservation work does not grant a new license for the tool's code, data or written content. The bundle preserves that status. There are no bundled third-party libraries or fonts.
+Original software is licensed under MIT. Original written content is licensed under CC BY 4.0. See [LICENSING.md](LICENSING.md) for the scope and attribution guidance. The full license texts are included in each release. There are no bundled third-party libraries or fonts.
