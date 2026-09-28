@@ -4,9 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Fusion Archetype LCOE Lever Stacks</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
 <style>
   :root{
     --paper:#ECEEF0;
@@ -40,6 +37,9 @@
   .masthead{padding:44px 0 8px;display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
   .doc-id{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--steel)}
   .doc-id b{color:var(--plasma);font-weight:600}
+  .artifact-links{display:flex;flex-wrap:wrap;gap:8px 20px;padding:12px 0 8px;font-size:14px}
+  .artifact-links a{color:var(--steel);text-underline-offset:3px}
+  .artifact-links a:focus-visible{outline:2px solid var(--plasma);outline-offset:4px}
   h1{font-size:clamp(26px,4vw,40px);font-weight:700;letter-spacing:-.02em;line-height:1.1;padding:6px 0 18px}
   h1 .accent{color:var(--plasma)}
   .intro{max-width:78ch;color:var(--ink);padding-bottom:16px}
@@ -143,6 +143,10 @@
     <div class="masthead">
       <span class="doc-id"><b>1cFE</b> · Techno-economic reference · Jul 2026</span>
     </div>
+    <nav class="artifact-links" aria-label="Source and preservation">
+      <a href="https://github.com/1cFE/levers">Source on GitHub</a>
+      <a href="run-locally.html">Run locally and reproduce a release</a>
+    </nav>
     <h1>LCOE lever stacks for six fusion archetypes<span class="accent">.</span></h1>
     <div class="intro">
       <p>Every fusion architecture has a different route to ultra-low-cost electricity — and a different set of things that must <em>all</em> go right to get there. This reference maps the techno-economic levers behind the most favorable LCOE case of six representative fusion archetypes, spanning confinement families (magnetic, inertial, magneto-inertial) and fuel cycles (D-T, D-³He, p-¹¹B), against an ambitious ~1&nbsp;¢/kWh cost target.</p>
